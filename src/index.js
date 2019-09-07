@@ -2,12 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import ToDo from './components/ToDo/ToDo';
+import {inSessionStore}  from './api/api';
 
-var app = ReactDOM.render(<ToDo />, document.getElementById('root'));
-
-app.addTask("First task");
-app.addTask("Second task");
-app.addTask("Third task");
-
-
-
+ReactDOM.render(<ToDo taskApi={inSessionStore} styleName="root-block__todo"/>, document.getElementById('root'));

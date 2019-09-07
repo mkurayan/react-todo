@@ -1,17 +1,15 @@
 import React from 'react';
 import './ToDo.css';
-import AddTask from './AddTask/AddTask';
-import TaskList from './TaskList/TaskList';
-import TaskFilters from "./TaskFilters/TaskFilter"
-import TaskFilterEnum from "./Utils/TaskFilterEnum"
+import AddTask from './AddTask';
+import TaskList from './TaskList';
+import TaskFilters from './TaskFilter';
+import TaskFilterEnum from './TaskFilterEnum';
+import Button from '../Button/Button';
+import helpers from '../../utils/helpers';
 
 class ToDo extends React.Component {
-  name = 'Jack';
-
   constructor(props) {
     super(props);
-
-    this._counter = 0;
 
     this.state = {
       tasks: [],
@@ -19,6 +17,19 @@ class ToDo extends React.Component {
     };
 
     this.changeTasksFilter = this.changeTasksFilter.bind(this);
+    this.clearCompleted = this.clearCompleted.bind(this);
+
+    this.removeTask = this.removeTask.bind(this);
+    this.toogleTaskStatusDebounced = helpers.debounce(this.toogleTaskStatus, 250, this, true);
+  }
+
+  componentDidMount() {
+    let tasks = this.props.taskApi.getTasks();
+    this.setState({ tasks: tasks });
+  }
+
+  componentWillUnmount() {
+    this.toogleTaskStatusDebounced.cancel();
   }
 
   toogleTaskStatus(taskId) {
@@ -31,12 +42,12 @@ class ToDo extends React.Component {
         isDone: !tasks[index].isDone
       };
 
-      this.setState({ tasks: tasks })
+      this._setTasks(tasks);
     }
   }
 
   removeTask(taskId) {
-    this.setState({ tasks: this.state.tasks.filter((task)=> task.id !== taskId)})
+    this._setTasks(this.state.tasks.filter((task)=> task.id !== taskId));
   }
 
   addTask(text) {
@@ -45,12 +56,12 @@ class ToDo extends React.Component {
       var tasks = [...this.state.tasks];
 
       tasks.push({
-        id: this._counter++,
+        id: helpers.uuid(),
         isDone: false,
         text: text
       });
 
-      this.setState({ tasks: tasks});
+      this._setTasks(tasks);
     }
   }
 
@@ -58,29 +69,53 @@ class ToDo extends React.Component {
     this.setState({filter: filter});
   }
 
+  clearCompleted() {
+    this._setTasks(this.state.tasks.filter((task)=> !task.isDone ));
+  }
+
   render() {     
-    let tasks = this.state.tasks;
+    let tasksToDisplay = this.state.tasks;
     if(this.state.filter === TaskFilterEnum.completed) {
-      tasks = this.state.tasks.filter(task => task.isDone);
+      tasksToDisplay = this.state.tasks.filter(task => task.isDone);
     } else if(this.state.filter === TaskFilterEnum.active) {
-      tasks = this.state.tasks.filter(task => !task.isDone);
+      tasksToDisplay = this.state.tasks.filter(task => !task.isDone);
+    }
+
+    const tasksLeft = this.state.tasks.filter(task => !task.isDone).length;
+
+    let clearButton = null;
+
+    if (this.state.tasks.length - tasksLeft > 0) {
+      clearButton = <Button text="Clear completed" onClick={this.clearCompleted}/>;
     }
 
     return (
-      <div className="ToDo">
-        <div className="ToDo-header">
+      <div className={`ToDo ${ this.props.styleName }`}>
+        <div className="ToDo_header">
           ToDo list.
         </div>
-        <TaskList tasks={tasks} 
-            toogleTaskStatus={(taskId) => this.toogleTaskStatus(taskId)}
-            removeTask={(taskId) => this.removeTask(taskId)} />
-        <AddTask addNewTask={(newTaskText) => this.addTask(newTaskText)} />
-        <TaskFilters 
+
+        <TaskFilters
           selectedOption={this.state.filter}
           handleOptionChange={this.changeTasksFilter}
         />
+
+        <AddTask addNewTask={(newTaskText) => this.addTask(newTaskText)} />
+
+        <TaskList tasks={tasksToDisplay} 
+            toogleTaskStatus={this.toogleTaskStatusDebounced}
+            removeTask={this.removeTask} />
+
+        <span>{`${tasksLeft} Items left`}</span>
+
+        {clearButton}
       </div>
     );
+  }
+
+  _setTasks(tasks) {
+    this.setState({ tasks: tasks });
+    this.props.taskApi.setTasks(tasks);
   }
 }
     
