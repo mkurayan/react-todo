@@ -1,5 +1,4 @@
 import React from 'react';
-import './TaskList.css'
 
 function TaskList(props) {
   return (

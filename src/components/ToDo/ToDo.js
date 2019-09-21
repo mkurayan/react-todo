@@ -1,11 +1,43 @@
 import React from 'react';
-import './ToDo.css';
 import AddTask from './AddTask';
 import TaskList from './TaskList';
-import TaskFilters from './TaskFilter';
+import TaskFilter from './TaskFilter.js'
 import TaskFilterEnum from './TaskFilterEnum';
-import Button from '../Button/Button';
 import helpers from '../../utils/helpers';
+
+import { withStyles } from '@material-ui/core/styles';
+import { Box, Button, Divider } from '@material-ui/core';
+
+const styles = theme => ({
+  root: {    
+    width: theme.spacing(82),
+    height: theme.spacing(80),
+    [theme.breakpoints.up('xs')]: {
+      padding: [[theme.spacing(1), theme.spacing(2)]]
+    },
+    [theme.breakpoints.up('sm')]: {
+      padding: [[theme.spacing(6), theme.spacing(8)]]  
+    }
+  },
+
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    color: theme.palette.primary.dark,
+    fontSize: theme.typography.h3.fontSize,
+    fontWeight: theme.typography.fontWeightMedium,
+    [theme.breakpoints.up('xs')]: {
+      justifyContent: 'center',
+      flexDirection: 'column',
+      marginBottom: theme.spacing(2)
+    },
+    [theme.breakpoints.up('sm')]: {
+      justifyContent: 'space-between',
+      flexDirection: 'row',
+      marginBottom: theme.spacing(5)
+    }
+  }
+});
 
 class ToDo extends React.Component {
   constructor(props) {
@@ -19,6 +51,7 @@ class ToDo extends React.Component {
     this.changeTasksFilter = this.changeTasksFilter.bind(this);
     this.clearCompleted = this.clearCompleted.bind(this);
 
+    this.addTask = this.addTask.bind(this);
     this.removeTask = this.removeTask.bind(this);
     this.toogleTaskStatusDebounced = helpers.debounce(this.toogleTaskStatus, 250, this, true);
   }
@@ -73,7 +106,10 @@ class ToDo extends React.Component {
     this._setTasks(this.state.tasks.filter((task)=> !task.isDone ));
   }
 
-  render() {     
+  render() {
+    const { classes } = this.props;
+    
+
     let tasksToDisplay = this.state.tasks;
     if(this.state.filter === TaskFilterEnum.completed) {
       tasksToDisplay = this.state.tasks.filter(task => task.isDone);
@@ -90,18 +126,13 @@ class ToDo extends React.Component {
     }
 
     return (
-      <div className={`ToDo ${ this.props.styleName }`}>
-        <div className="ToDo_header">
-          ToDo list.
-        </div>
-
-        <TaskFilters
-          selectedOption={this.state.filter}
-          handleOptionChange={this.changeTasksFilter}
-        />
-
-        <AddTask addNewTask={(newTaskText) => this.addTask(newTaskText)} />
-
+      <div className={`${ classes.root } ${ this.props.styleName }`}>
+        <Box className={classes.header}>
+          Todo List
+          <TaskFilter filter={this.state.filter} handleFilterChange={this.changeTasksFilter} />
+        </Box>
+        <AddTask addNewTask={this.addTask} />
+        <Divider />
         <TaskList tasks={tasksToDisplay} 
             toogleTaskStatus={this.toogleTaskStatusDebounced}
             removeTask={this.removeTask} />
@@ -119,5 +150,5 @@ class ToDo extends React.Component {
   }
 }
     
-export default ToDo;
+export default withStyles(styles)(ToDo); ;
   

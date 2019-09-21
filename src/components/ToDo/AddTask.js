@@ -1,5 +1,20 @@
-import React from 'react';
-import Button from '../Button/Button';
+import React  from 'react';
+import { withStyles } from '@material-ui/core/styles';
+import { Box, InputBase, IconButton } from '@material-ui/core';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+
+const styles = theme => ({
+  root: {    
+    display: 'flex',
+    alignItems: 'center',
+    // borderBottom: '2px solid',
+    // borderBottomColor: theme.palette.grey['A100'],
+    paddingLeft: theme.spacing(2)
+  },
+  input: {
+   flexGrow: 1
+  }
+});
 
 class AddTask extends React.Component {
   constructor(props) {
@@ -36,17 +51,23 @@ class AddTask extends React.Component {
   }
 
   render() {
+    const { classes } = this.props;
+
     return (
-    <div>
-      <input 
-        type="text" 
-        value={this.state.text} 
-        onChange ={this.handleTextChange}
-        onKeyPress ={this.handleKeys} />
-      <Button text="+" onClick={this.addTask}/>
-    </div>
+    <Box className={classes.root}>
+      <InputBase className={classes.input}
+          placeholder='What needs to be done?'
+          inputProps={{ 'aria-label': 'enter new task' }}
+          value={this.state.text}
+          onChange ={this.handleTextChange}
+          onKeyPress ={this.handleKeys}
+        />
+      <IconButton aria-label="add new task" onClick={this.addTask}>
+        <AddCircleIcon color="primary" fontSize="large"/>
+      </IconButton>
+    </Box>
     );
   }
 }
 
-export default AddTask;
+export default withStyles(styles)(AddTask);
