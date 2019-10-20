@@ -7,8 +7,6 @@ const styles = theme => ({
   root: {    
     display: 'flex',
     alignItems: 'center',
-    // borderBottom: '2px solid',
-    // borderBottomColor: theme.palette.grey['A100'],
     paddingLeft: theme.spacing(2)
   },
   input: {

@@ -6,18 +6,24 @@ import TaskFilterEnum from './TaskFilterEnum';
 import helpers from '../../utils/helpers';
 
 import { withStyles } from '@material-ui/core/styles';
-import { Box, Button, Divider } from '@material-ui/core';
+import { Box, Button, Divider, Paper } from '@material-ui/core';
+import clsx from 'clsx';
 
 const styles = theme => ({
-  root: {    
-    width: theme.spacing(82),
-    height: theme.spacing(80),
-    [theme.breakpoints.up('xs')]: {
-      padding: [[theme.spacing(1), theme.spacing(2)]]
+  root: { 
+    [theme.breakpoints.up("xs")]: {
+      padding: 0,
+      width: '100%',
+      height: '100%',
     },
-    [theme.breakpoints.up('sm')]: {
-      padding: [[theme.spacing(6), theme.spacing(8)]]  
-    }
+    [theme.breakpoints.up("sm")]: {
+      width: theme.spacing(82),
+      maxHeight: theme.spacing(100),
+      padding: [[theme.spacing(6), theme.spacing(8)]],
+    },
+
+    display: 'flex',
+    flexDirection: 'column'
   },
 
   header: {
@@ -34,6 +40,15 @@ const styles = theme => ({
     [theme.breakpoints.up('sm')]: {
       justifyContent: 'space-between',
       flexDirection: 'row',
+      marginBottom: theme.spacing(5)
+    }
+  },
+
+  divider: {
+    [theme.breakpoints.up('xs')]: {
+      marginBottom: theme.spacing(2)
+    },
+    [theme.breakpoints.up('sm')]: {
       marginBottom: theme.spacing(5)
     }
   }
@@ -126,21 +141,22 @@ class ToDo extends React.Component {
     }
 
     return (
-      <div className={`${ classes.root } ${ this.props.styleName }`}>
+      <Paper className={clsx(classes.root, this.props.styleName)}>
         <Box className={classes.header}>
           Todo List
           <TaskFilter filter={this.state.filter} handleFilterChange={this.changeTasksFilter} />
         </Box>
         <AddTask addNewTask={this.addTask} />
-        <Divider />
-        <TaskList tasks={tasksToDisplay} 
+        <Divider className={classes.divider}/>
+        <TaskList
+            tasks={tasksToDisplay} 
             toogleTaskStatus={this.toogleTaskStatusDebounced}
             removeTask={this.removeTask} />
 
         <span>{`${tasksLeft} Items left`}</span>
 
         {clearButton}
-      </div>
+      </Paper>
     );
   }
 

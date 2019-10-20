@@ -8,22 +8,17 @@ import { ThemeProvider } from '@material-ui/styles';
 
 const useStyles = makeStyles(theme => ({
   root: { 
-    [theme.breakpoints.up('xs')]: {
-      marginTop: theme.spacing(1),
-      boxShadow: "0px",
-      borderRadius: "0px"
-    },
-    [theme.breakpoints.up('sm')]: {
-      marginTop: theme.spacing(5),
+    [theme.breakpoints.up("sm")]: {
       boxShadow: "0px 0px 60px rgba(0,0,0,0.4)",
-      borderRadius: "10px"
+      borderRadius: "10px",
+      margin: [[theme.spacing(5), 0]]
     },
-    [theme.breakpoints.up('md')]: {
-      marginTop: theme.spacing(10),
+    [theme.breakpoints.up("md")]: {
+      margin: [[theme.spacing(8), 0]]
     },
-    [theme.breakpoints.up('lg')]: {
-      marginTop: theme.spacing(15),
-    },
+    [theme.breakpoints.up("lg")]: {
+      margin: [[theme.spacing(10), 0]]
+    }, 
   }
 }));
 
@@ -41,5 +36,3 @@ export default function App() {
     </ThemeProvider>
   );
 }
-
-
