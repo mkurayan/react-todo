@@ -57,6 +57,10 @@ const useStyles = makeStyles(theme => ({
     },  
   },
 
+  listItemText: {
+    wordWrap: 'break-word'
+  },
+
   greyText: {
     color: grey[500],
     textDecoration: 'line-through'
@@ -70,7 +74,7 @@ function TaskList(props) {
   const classes = useStyles();
 
   return (
-    <List className={classes.root}>
+    <List className= {clsx(classes.root, props.styleName)}>
       {props.tasks.map((todo) => {
         const labelId = `checkbox-list-label-${todo.text}`;
 
@@ -87,7 +91,7 @@ function TaskList(props) {
                   inputProps={{ 'aria-labelledby': labelId }}
                 />
               </ListItemIcon> 
-              <ListItemText id={labelId} primary={todo.text} className={todo.isDone && classes.greyText} />
+              <ListItemText id={labelId} primary={todo.text} className={clsx(classes.listItemText, todo.isDone && classes.greyText)} />
               <ListItemSecondaryAction className={clsx(classes.removeButton, removeButtonClass)}>
                 <IconButton onClick={() => props.removeTask(todo.id)} aria-label="removeTask">
                   <ClearIcon htmlColor={redColor} />

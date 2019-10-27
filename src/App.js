@@ -30,9 +30,7 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box display="flex" justifyContent="center">
-        <ToDo taskApi={inSessionStore} styleName={classes.root}/>
-      </Box>  
-    </ThemeProvider>
+      <ToDo taskApi={inSessionStore} styleName={classes.root}/>
+    </ThemeProvider>  
   );
 }
