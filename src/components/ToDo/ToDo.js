@@ -2,12 +2,15 @@ import React from 'react';
 import AddTask from './AddTask';
 import TaskList from './TaskList';
 import TaskFilter from './TaskFilter.js'
+import BottomAppBar from './BottomAppBar.js'
 import TaskFilterEnum from './TaskFilterEnum';
 import helpers from '../../utils/helpers';
 
 import { withStyles } from '@material-ui/core/styles';
-import { Box, Button, Divider, Paper } from '@material-ui/core';
+import { Box, Button, Divider, Paper, Typography } from '@material-ui/core';
 import clsx from 'clsx';
+
+import Hidden from '@material-ui/core/Hidden';
 
 const styles = theme => ({
   root: { 
@@ -18,6 +21,8 @@ const styles = theme => ({
     },
     [theme.breakpoints.up("sm")]: {
       width: theme.spacing(82),
+
+      minHeight: theme.spacing(60),
       maxHeight: theme.spacing(100),
       padding: [[theme.spacing(6), theme.spacing(8)]],
     },
@@ -29,19 +34,30 @@ const styles = theme => ({
   header: {
     display: 'flex',
     alignItems: 'center',
-    color: theme.palette.primary.dark,
-    fontSize: theme.typography.h3.fontSize,
+    justifyContent: 'space-between',
+    flexDirection: 'row',
     fontWeight: theme.typography.fontWeightMedium,
+
     [theme.breakpoints.up('xs')]: {
-      justifyContent: 'center',
-      flexDirection: 'column',
-      marginBottom: theme.spacing(2)
+      marginBottom: theme.spacing(2),
+      fontSize: theme.typography.h5.fontSize,
     },
-    [theme.breakpoints.up('sm')]: {
-      justifyContent: 'space-between',
-      flexDirection: 'row',
-      marginBottom: theme.spacing(5)
+    [theme.breakpoints.up('sm')]: { 
+      marginBottom: theme.spacing(5),
+      color: theme.palette.primary.dark,
+      fontSize: theme.typography.h3.fontSize,
     }
+  },
+
+  footer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: theme.spacing(1),
+
+    [theme.breakpoints.down("xs")]: {
+      padding: theme.spacing(1),
+    },
   },
 
   divider: {
@@ -51,6 +67,10 @@ const styles = theme => ({
     [theme.breakpoints.up('sm')]: {
       marginBottom: theme.spacing(5)
     }
+  },
+
+  flexContent: {
+    flexGrow: 1
   }
 });
 
@@ -132,31 +152,59 @@ class ToDo extends React.Component {
       tasksToDisplay = this.state.tasks.filter(task => !task.isDone);
     }
 
-    const tasksLeft = this.state.tasks.filter(task => !task.isDone).length;
+    const incompleteTasksCount = this.state.tasks.filter(task => !task.isDone).length;
 
     let clearButton = null;
+    let showClearButton = false;
 
-    if (this.state.tasks.length - tasksLeft > 0) {
-      clearButton = <Button text="Clear completed" onClick={this.clearCompleted}/>;
+    if (this.state.tasks.length - incompleteTasksCount > 0) {
+      showClearButton = true;
+      clearButton = <Button  color="primary" onClick={this.clearCompleted}>Clear completed</Button>;
     }
 
+    let itemsLeft = <Typography> {`${incompleteTasksCount} Items left`} </Typography>;
+
     return (
-      <Paper className={clsx(classes.root, this.props.styleName)}>
-        <Box className={classes.header}>
-          Todo List
-          <TaskFilter filter={this.state.filter} handleFilterChange={this.changeTasksFilter} />
-        </Box>
-        <AddTask addNewTask={this.addTask} />
-        <Divider className={classes.divider}/>
-        <TaskList
-            tasks={tasksToDisplay} 
-            toogleTaskStatus={this.toogleTaskStatusDebounced}
-            removeTask={this.removeTask} />
+      <React.Fragment>
+        <Paper className={clsx(classes.root, this.props.styleName)}>
+          <Box className={classes.header}>
+            Todo List
 
-        <span>{`${tasksLeft} Items left`}</span>
+            <Hidden smUp>
+              {itemsLeft}
+            </Hidden>
+            <Hidden xsDown>
+              <TaskFilter filter={this.state.filter} handleFilterChange={this.changeTasksFilter} />
+            </Hidden>
+          </Box>
 
-        {clearButton}
-      </Paper>
+          <Hidden xsDown>
+            <AddTask addNewTask={this.addTask} />
+            <Divider className={classes.divider}/>  
+          </Hidden>
+
+          <TaskList
+              styleName={classes.flexContent}
+              tasks={tasksToDisplay} 
+              toogleTaskStatus={this.toogleTaskStatusDebounced}
+              removeTask={this.removeTask} />
+
+          <Box className={classes.footer}>
+            {itemsLeft}
+            {clearButton}   
+          </Box>
+        </Paper>
+
+        <Hidden smUp>
+          <BottomAppBar
+            filter={this.state.filter} 
+            handleFilterChange={this.changeTasksFilter}
+            showClearButton={showClearButton}
+            handelClearCompleted={this.clearCompleted}
+            addNewTask={this.addTask}
+          />
+        </Hidden>
+      </React.Fragment>
     );
   }
 

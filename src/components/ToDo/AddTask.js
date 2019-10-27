@@ -28,7 +28,6 @@ class AddTask extends React.Component {
   }
   
   handleTextChange(e) {
-    console.log(e);
     this.setState({text: e.target.value})
   }
 
@@ -59,6 +58,8 @@ class AddTask extends React.Component {
           value={this.state.text}
           onChange ={this.handleTextChange}
           onKeyPress ={this.handleKeys}
+          multiline
+          rowsMax="4"
         />
       <IconButton aria-label="add new task" onClick={this.addTask}>
         <AddCircleIcon color="primary" fontSize="large"/>

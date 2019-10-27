@@ -1,9 +1,8 @@
 import React from 'react';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Box from '@material-ui/core/Box';
 import ToDo from './components/ToDo/ToDo';
 import {inSessionStore}  from './api/api';
-import { createMuiTheme, makeStyles } from '@material-ui/core/styles';
+import { createMuiTheme, makeStyles, responsiveFontSizes  } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 
 const useStyles = makeStyles(theme => ({
@@ -22,7 +21,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const theme = createMuiTheme({});
+let theme = createMuiTheme({});
 
 export default function App() {
   const classes = useStyles();
@@ -30,9 +29,7 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box display="flex" justifyContent="center">
-        <ToDo taskApi={inSessionStore} styleName={classes.root}/>
-      </Box>  
-    </ThemeProvider>
+      <ToDo taskApi={inSessionStore} styleName={classes.root}/>
+    </ThemeProvider>  
   );
 }
