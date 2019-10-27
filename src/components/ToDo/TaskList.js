@@ -70,7 +70,7 @@ function TaskList(props) {
   const classes = useStyles();
 
   return (
-    <List className={classes.root}>
+    <List className= {clsx(classes.root, props.styleName)}>
       {props.tasks.map((todo) => {
         const labelId = `checkbox-list-label-${todo.text}`;
 

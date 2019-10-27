@@ -6,7 +6,7 @@ import TaskFilterEnum from './TaskFilterEnum';
 import helpers from '../../utils/helpers';
 
 import { withStyles } from '@material-ui/core/styles';
-import { Box, Button, Divider, Paper } from '@material-ui/core';
+import { Box, Button, Divider, Paper, Typography } from '@material-ui/core';
 import clsx from 'clsx';
 
 const styles = theme => ({
@@ -18,6 +18,8 @@ const styles = theme => ({
     },
     [theme.breakpoints.up("sm")]: {
       width: theme.spacing(82),
+
+      minHeight: theme.spacing(60),
       maxHeight: theme.spacing(100),
       padding: [[theme.spacing(6), theme.spacing(8)]],
     },
@@ -30,8 +32,7 @@ const styles = theme => ({
     display: 'flex',
     alignItems: 'center',
     color: theme.palette.primary.dark,
-    fontSize: theme.typography.h3.fontSize,
-    fontWeight: theme.typography.fontWeightMedium,
+    
     [theme.breakpoints.up('xs')]: {
       justifyContent: 'center',
       flexDirection: 'column',
@@ -44,6 +45,13 @@ const styles = theme => ({
     }
   },
 
+  footer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: theme.spacing(1)
+  },
+
   divider: {
     [theme.breakpoints.up('xs')]: {
       marginBottom: theme.spacing(2)
@@ -51,6 +59,10 @@ const styles = theme => ({
     [theme.breakpoints.up('sm')]: {
       marginBottom: theme.spacing(5)
     }
+  },
+
+  flexContent: {
+    flexGrow: 1
   }
 });
 
@@ -137,25 +149,31 @@ class ToDo extends React.Component {
     let clearButton = null;
 
     if (this.state.tasks.length - tasksLeft > 0) {
-      clearButton = <Button text="Clear completed" onClick={this.clearCompleted}/>;
+      clearButton = <Button  color="primary" onClick={this.clearCompleted}>Clear completed</Button>;
     }
 
     return (
       <Paper className={clsx(classes.root, this.props.styleName)}>
         <Box className={classes.header}>
-          Todo List
+          <Typography variant="h3" >
+            Todo List
+          </Typography>
           <TaskFilter filter={this.state.filter} handleFilterChange={this.changeTasksFilter} />
         </Box>
         <AddTask addNewTask={this.addTask} />
         <Divider className={classes.divider}/>
         <TaskList
+            styleName={classes.flexContent}
             tasks={tasksToDisplay} 
             toogleTaskStatus={this.toogleTaskStatusDebounced}
             removeTask={this.removeTask} />
+        <Box className={classes.footer}>
+          <Typography>
+            {`${tasksLeft} Items left`}
+          </Typography>
 
-        <span>{`${tasksLeft} Items left`}</span>
-
-        {clearButton}
+          {clearButton}
+        </Box>
       </Paper>
     );
   }
