@@ -2,7 +2,7 @@ import React from 'react';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import ToDo from './components/ToDo/ToDo';
 import {inSessionStore}  from './api/api';
-import { createMuiTheme, makeStyles, responsiveFontSizes  } from '@material-ui/core/styles';
+import { createMuiTheme, makeStyles  } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 
 const useStyles = makeStyles(theme => ({

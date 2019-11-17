@@ -1,20 +1,11 @@
 import React from 'react';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import ListItemText from '@material-ui/core/ListItemText';
-import Checkbox from '@material-ui/core/Checkbox';
-import IconButton from '@material-ui/core/IconButton';
-import green from '@material-ui/core/colors/green';
-import red from '@material-ui/core/colors/red';
-import grey from '@material-ui/core/colors/grey';
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import ClearIcon from '@material-ui/icons/Clear';
-import Divider from '@material-ui/core/Divider';
-
+import { 
+  List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText,
+  IconButton, Checkbox, Divider
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { green, red, grey } from '@material-ui/core/colors';
+import { RadioButtonUnchecked, CheckCircle, Clear } from '@material-ui/icons';
 import clsx from 'clsx';
 
 const removeButtonClass = 'taskList_removeButton';
@@ -86,15 +77,15 @@ function TaskList(props) {
                   checked={todo.isDone}
                   onChange={() => props.toogleTaskStatus(todo.id) } 
                   tabIndex={-1}
-                  icon={<RadioButtonUncheckedIcon />} 
-                  checkedIcon={<CheckCircleIcon  htmlColor={greenColor} />}
+                  icon={<RadioButtonUnchecked />} 
+                  checkedIcon={<CheckCircle  htmlColor={greenColor} />}
                   inputProps={{ 'aria-labelledby': labelId }}
                 />
               </ListItemIcon> 
               <ListItemText id={labelId} primary={todo.text} className={clsx(classes.listItemText, todo.isDone && classes.greyText)} />
               <ListItemSecondaryAction className={clsx(classes.removeButton, removeButtonClass)}>
                 <IconButton onClick={() => props.removeTask(todo.id)} aria-label="removeTask">
-                  <ClearIcon htmlColor={redColor} />
+                  <Clear htmlColor={redColor} />
                 </IconButton>
               </ListItemSecondaryAction>
             </ListItem>

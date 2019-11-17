@@ -1,22 +1,15 @@
 import React from 'react';
 import TaskFilterEnum from './TaskFilterEnum';
-
+import useTaskInput from './useTaskInput'
+import { 
+  AppBar, Toolbar, 
+  Select, MenuItem, 
+  Input, TextField, 
+  Button, Fab,
+  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle 
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
-import Input from '@material-ui/core/Input';
-import Button from '@material-ui/core/Button';
-
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 
 const useStyles = makeStyles(theme => ({
   appBar: {
@@ -59,34 +52,19 @@ export default function BottomAppBar(props) {
   };
 
   const [open, setOpen] = React.useState(false);
-  const [text, setText] = React.useState("");
+
+  const [taskText, taskApi] = useTaskInput((task) => {
+      props.addNewTask(task);
+      setOpen(false);
+  });
 
   const handleClickOpen = () => {
+    taskApi.clearTask()
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
-  };
-
-  const handleAddTask = () => {
-    let task = text.trim();
-
-    if(task !== "") {
-      setText("");
-      props.addNewTask(task);
-      setOpen(false);
-    }
-  };
-
-  const handleTextChange = (e) => {
-    setText(e.target.value)
-  };
-
-  const handleKeys = (e) => {
-    if (e.key === 'Enter') {
-      handleAddTask();
-    }
   };
 
   return (
@@ -131,16 +109,16 @@ export default function BottomAppBar(props) {
             fullWidth
             multiline
             rowsMax="4"
-            value={text}
-            onChange ={handleTextChange}
-            onKeyPress ={handleKeys}
+            value={taskText}
+            onChange ={taskApi.textChange}
+            onKeyPress ={taskApi.keyPress}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleAddTask} color="primary">
+          <Button onClick={taskApi.addTask} color="primary">
             Add 
           </Button>
         </DialogActions>
