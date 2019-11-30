@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
+import AddTaskDialog from './AddTaskDialog';
 import TaskFilterEnum from './TaskFilterEnum';
-import useTaskInput from './useTaskInput'
 import { 
   AppBar, Toolbar, 
   Select, MenuItem, 
-  Input, TextField, 
-  Button, Fab,
-  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle 
+  Input, 
+  Button, Fab
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
+import { AppContext }  from '../../reducer/rootReducer';
+import { changeFilter } from '../../reducer/taskFilterReducer';
 
 const useStyles = makeStyles(theme => ({
   appBar: {
@@ -46,24 +47,18 @@ const useStyles = makeStyles(theme => ({
 
 export default function BottomAppBar(props) {
   const classes = useStyles();
+  const [open, setOpen] = useState(false);
+  const { state, dispatch } = useContext(AppContext);
 
   const handleChange = event => {
-    props.handleFilterChange(event.target.value);
+    dispatch(changeFilter(event.target.value));
   };
 
-  const [open, setOpen] = React.useState(false);
-
-  const [taskText, taskApi] = useTaskInput((task) => {
-      props.addNewTask(task);
-      setOpen(false);
-  });
-
-  const handleClickOpen = () => {
-    taskApi.clearTask()
+  const handleAddTaskDialogOpen = () => {    
     setOpen(true);
   };
 
-  const handleClose = () => {
+  const handleAddTaskDialogClose = () => {
     setOpen(false);
   };
 
@@ -71,7 +66,7 @@ export default function BottomAppBar(props) {
     <React.Fragment>
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
-          <Select value={props.filter} onChange={handleChange} 
+          <Select value={state.filter} onChange={handleChange} 
             classes={{
               root: classes.selectRoot,
               icon: classes.selectIcon
@@ -85,7 +80,7 @@ export default function BottomAppBar(props) {
             <MenuItem value={TaskFilterEnum.completed}>Completed</MenuItem>
           </Select>
 
-          <Fab color="secondary" aria-label="add" className={classes.fabButton} onClick={handleClickOpen}>
+          <Fab color="secondary" aria-label="add" className={classes.fabButton} onClick={handleAddTaskDialogOpen}>
             <AddIcon />
           </Fab>
           <div className={classes.grow} />
@@ -95,34 +90,8 @@ export default function BottomAppBar(props) {
           }
         </Toolbar>
       </AppBar>
-      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title"
-        fullWidth={true}>
-        <DialogTitle id="form-dialog-title">Add new task</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            What needs to be done?
-          </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="New task"
-            fullWidth
-            multiline
-            rowsMax="4"
-            value={taskText}
-            onChange ={taskApi.textChange}
-            onKeyPress ={taskApi.keyPress}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={taskApi.addTask} color="primary">
-            Add 
-          </Button>
-        </DialogActions>
-      </Dialog>
+      
+      <AddTaskDialog  open={open} handleClose={handleAddTaskDialogClose} />
     </React.Fragment>
   );
 }

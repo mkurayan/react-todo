@@ -1,28 +1,47 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { AppContext }  from '../../reducer/rootReducer';
+import { addTask }  from  '../../reducer/taskReducer';
+import { ApiContext } from '../../api/apiContext';
+import helpers from '../../utils/helpers';
 
-export default function useTaskInput(addNewTask = () => {}) {
+export default function useTaskInput(addTaskCallback) {
   const [text, setText] = useState("");
+  
+  const api = useContext(ApiContext);
+  const { dispatch } = useContext(AppContext);
 
-  const addTask = () => {
-    let task = text.trim();
+  const addNewTask = () => {
+    let trimmedText = text.trim();
 
-    if(task !== "") {
+    if(trimmedText !== "") {
       setText("");
-      addNewTask(task);
+
+      let task = {
+        id: helpers.uuid(),
+        isDone: false,
+        text: text
+      };
+
+      api.add(task);
+      dispatch(addTask(task));
+
+      if(addTaskCallback) {
+        addTaskCallback();
+      }
     }
   };
 
-  const api = {
+  const taskInput = {    
     textChange: (e) => setText(e.target.value),
     keyPress: (e) => {
       if (e.key === 'Enter') {
-        addTask();
+        addNewTask();
       }
     },
-    clearTask: () => setText(''),
-    addTask,
+    addTask: addNewTask,
+    setText
   };
 
-  return  [text, api]
+  return  [text, taskInput]
 }
 

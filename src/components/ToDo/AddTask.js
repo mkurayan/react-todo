@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function AddTask(props) {
   const classes = useStyles();
-  const [taskText, taskApi] = useTaskInput(props.addNewTask);
+  const [taskText, taskInput] = useTaskInput(props.addNewTask);
 
   return (
     <Box className={classes.root}>
@@ -26,12 +26,12 @@ export default function AddTask(props) {
           placeholder='What needs to be done?'
           inputProps={{ 'aria-label': 'enter new task' }}
           value={taskText}
-          onChange ={taskApi.textChange}
-          onKeyPress ={taskApi.keyPress}
+          onChange ={taskInput.textChange}
+          onKeyPress ={taskInput.keyPress}
           multiline
           rowsMax="4"
         />
-      <IconButton aria-label="add new task" onClick={taskApi.addTask}>
+      <IconButton aria-label="add new task" onClick={taskInput.addTask}>
         <AddCircleIcon color="primary" fontSize="large"/>
       </IconButton>
     </Box>

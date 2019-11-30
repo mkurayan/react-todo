@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
+import useDebounce from './useDebounce';
 import { 
   List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText,
   IconButton, Checkbox, Divider
@@ -7,6 +8,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import { green, red, grey } from '@material-ui/core/colors';
 import { RadioButtonUnchecked, CheckCircle, Clear } from '@material-ui/icons';
 import clsx from 'clsx';
+import { ApiContext } from '../../api/apiContext';
+import { AppContext }  from '../../reducer/rootReducer';
+import { removeTask, toggleTask }  from '../../reducer/taskReducer';
 
 const removeButtonClass = 'taskList_removeButton';
 
@@ -58,37 +62,72 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function TaskList(props) {
-  const greenColor = green[500];
-  const redColor = red[500];
-
+function Task(props) {
+  const api = useContext(ApiContext);
   const classes = useStyles();
 
+  const { dispatch } = useContext(AppContext);
+
+  const greenColor = green[500];
+  const redColor = red[500];
+  
+  const todo = props.todo;
+  const labelId = `checkbox-list-label-${todo.text}`;
+
+  // Debounce task status so that it only gives us latest value
+  // if task status has not been updated within last 500ms.
+  // The goal is to only have the API call fire when user stops clicking
+  // so that we aren't hitting our API rapidly.
+  const debouncedTaskStatus = useDebounce(todo.isDone, 500);
+
+  // Effect for API call
+  useEffect(
+    () => {
+      let task = api.get(todo.id);
+      if(task) {
+        task.isDone = debouncedTaskStatus;
+        api.set(task);
+      }
+    },
+    [debouncedTaskStatus, api, todo.id] // Only call effect if debounced status changes
+  );
+
+  const remove = () => {
+    api.remove(todo.id);
+    dispatch(removeTask(todo.id));
+  };
+
+  return (
+    <ListItem dense button className={classes.task} disableRipple={true}>
+      <ListItemIcon>
+        <Checkbox
+          checked={todo.isDone}
+          onChange={() => dispatch(toggleTask(todo.id)) } 
+          tabIndex={-1}
+          icon={<RadioButtonUnchecked />} 
+          checkedIcon={<CheckCircle  htmlColor={greenColor} />}
+          inputProps={{ 'aria-labelledby': labelId }}
+        />
+      </ListItemIcon> 
+      <ListItemText id={labelId} primary={todo.text} className={clsx(classes.listItemText, todo.isDone && classes.greyText)} />
+      <ListItemSecondaryAction className={clsx(classes.removeButton, removeButtonClass)}>
+        <IconButton onClick={remove} aria-label="removeTask">
+          <Clear htmlColor={redColor} />
+        </IconButton>
+      </ListItemSecondaryAction>
+    </ListItem>
+  );
+}
+
+function TaskList(props) {
+  const classes = useStyles();
+  
   return (
     <List className= {clsx(classes.root, props.styleName)}>
       {props.tasks.map((todo) => {
-        const labelId = `checkbox-list-label-${todo.text}`;
-
         return (
           <React.Fragment key={todo.id}>
-            <ListItem dense button className={classes.task} disableRipple={true}>
-              <ListItemIcon>
-                <Checkbox
-                  checked={todo.isDone}
-                  onChange={() => props.toogleTaskStatus(todo.id) } 
-                  tabIndex={-1}
-                  icon={<RadioButtonUnchecked />} 
-                  checkedIcon={<CheckCircle  htmlColor={greenColor} />}
-                  inputProps={{ 'aria-labelledby': labelId }}
-                />
-              </ListItemIcon> 
-              <ListItemText id={labelId} primary={todo.text} className={clsx(classes.listItemText, todo.isDone && classes.greyText)} />
-              <ListItemSecondaryAction className={clsx(classes.removeButton, removeButtonClass)}>
-                <IconButton onClick={() => props.removeTask(todo.id)} aria-label="removeTask">
-                  <Clear htmlColor={redColor} />
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
+            <Task todo={todo}/>
             <Divider/>
           </React.Fragment>
         );

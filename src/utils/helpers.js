@@ -1,33 +1,5 @@
 
 var helpers = {
-    debounce: function (func, wait, scope, immediate) {
-        var timeout;
-    
-        var debounced = function () {
-            var context = scope || this, args = arguments;
-
-            var later = function () {
-                timeout = null;
-                func.apply(context, args);
-            };
-
-            if(immediate && timeout == null) {
-                func.apply(context, args);
-                timeout = setTimeout(() => timeout = null, wait);
-            } else {
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            } 
-        };
-
-        debounced.cancel = function() {
-            clearTimeout(timeout);
-            timeout = null;
-        };
-
-        return debounced;
-    }, 
-    
     uuid: function () {
         /*jshint bitwise:false */
         var i, random;

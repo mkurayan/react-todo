@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import TaskFilterEnum from './TaskFilterEnum';
 import { Button, ButtonGroup } from '@material-ui/core';
+import { AppContext }  from '../../reducer/rootReducer';
+import { changeFilter } from '../../reducer/taskFilterReducer';
 
 function TaskFilters(props) {
-  function button(text, filter) {
-    let varaiant = filter === props.filter ? 'contained' : 'outlined';
+  const { state, dispatch } = useContext(AppContext);
 
-    return <Button variant={varaiant} onClick={() => props.handleFilterChange(filter)}>{text}</Button>
+  function button(text, filter) {
+    let varaiant = filter === state.filter ? 'contained' : 'outlined';
+
+    return <Button variant={varaiant} onClick={() => dispatch(changeFilter(filter))}>{text}</Button>
   }
 
   return (

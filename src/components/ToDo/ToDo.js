@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import AddTask from './AddTask';
 import TaskList from './TaskList';
-import TaskFilter from './TaskFilter'
-import BottomAppBar from './BottomAppBar'
+import TaskFilter from './TaskFilter';
+import BottomAppBar from './BottomAppBar';
 import TaskFilterEnum from './TaskFilterEnum';
-import helpers from '../../utils/helpers';
+import { ApiContext } from '../../api/apiContext';
+import { AppContext }  from '../../reducer/rootReducer';
+import { addTasks, clearTasks }  from '../../reducer/taskReducer';
+
 import { withStyles } from '@material-ui/core/styles';
 import { Box, Button, Divider, Paper, Typography, Hidden } from '@material-ui/core';
 import clsx from 'clsx';
-import { func } from 'prop-types';
 
 const styles = theme => ({
   root: { 
@@ -37,11 +39,11 @@ const styles = theme => ({
     fontWeight: theme.typography.fontWeightMedium,
 
     [theme.breakpoints.up('xs')]: {
-      marginBottom: theme.spacing(2),
+      margin: theme.spacing(2),
       fontSize: theme.typography.h5.fontSize,
     },
     [theme.breakpoints.up('sm')]: { 
-      marginBottom: theme.spacing(5),
+      margin: [[0, 0, theme.spacing(5), 0]],
       color: theme.palette.primary.dark,
       fontSize: theme.typography.h3.fontSize,
     }
@@ -73,77 +75,40 @@ const styles = theme => ({
 });
 
 function ToDo(props) {
-  const [tasks, setTasks] = useState([]);
-  const [filter, setFilter] = useState(TaskFilterEnum.all);
-
-  useEffect(() => {
-    let tasks = props.taskApi.getTasks();
-    setTasks(tasks);
-  }, [props.taskApi]); 
-
-  const _setTasks = (tasks) => {
-    setTasks(tasks);
-    props.taskApi.setTasks(tasks);
-  };
-
-  const toogleTaskStatusDebounced = helpers.debounce(
-    (taskId) => {
-      let index = tasks.findIndex((element) => element.id === taskId);
-      if(index >= 0) {
-        let t = tasks.slice();
-  
-        t[index] = {
-          ...t[index],
-          isDone: !t[index].isDone
-        };
-  
-        _setTasks(t);
-      }
-    }, 
-    250, this, true
-  );
-
-  useEffect(() => {
-    // Cancel debounce when component did unmount.
-    return () => toogleTaskStatusDebounced.cancel();
-  }, []); 
-
-  const removeTask = (taskId) => _setTasks(tasks.filter((task)=> task.id !== taskId));
-
-  const addTask = (text) => {
-    const trimmedText = text.trim();
-    if(trimmedText !== "") {
-      var t = [...tasks];
-
-      t.push({
-        id: helpers.uuid(),
-        isDone: false,
-        text: text
-      });
-
-      _setTasks(t);
-    }
-  };
-
-  const changeTasksFilter = (filter) => setFilter(filter)
-
-  const clearCompleted = () => _setTasks(tasks.filter((task)=> !task.isDone ));
-
   const { classes } = props;
+  const api = useContext(ApiContext);
+  const {state, dispatch} = useContext(AppContext);
 
-  let tasksToDisplay = tasks;
-  if(filter === TaskFilterEnum.completed) {
-    tasksToDisplay = tasks.filter(task => task.isDone);
-  } else if(filter === TaskFilterEnum.active) {
-    tasksToDisplay = tasks.filter(task => !task.isDone);
+  useEffect(() => {
+    let tasks = api.get();
+    dispatch(addTasks(tasks));
+  }, [api, dispatch]); 
+
+  const clearCompleted = () => { 
+    let tasksToRemome = state.tasks.filter((task)=> task.isDone);
+
+    // ToDo: optimize this.
+    tasksToRemome.forEach(task => {
+      api.remove(task.id)
+    });
+
+    dispatch(clearTasks());
+  };
+
+  
+  let tasksToDisplay = state.tasks;
+  if(state.filter === TaskFilterEnum.completed) {
+    tasksToDisplay = state.tasks.filter(task => task.isDone);
+  } else if(state.filter === TaskFilterEnum.active) {
+    tasksToDisplay = state.tasks.filter(task => !task.isDone);
   }
 
-  const incompleteTasksCount = tasks.filter(task => !task.isDone).length;
+  const incompleteTasksCount = state.tasks.filter(task => !task.isDone).length;
 
   let clearButton = null;
   let showClearButton = false;
 
-  if (tasks.length - incompleteTasksCount > 0) {
+  if (state.tasks.length - incompleteTasksCount > 0) {
     showClearButton = true;
     clearButton = <Button  color="primary" onClick={clearCompleted}>Clear completed</Button>;
   }
@@ -160,20 +125,18 @@ function ToDo(props) {
             {itemsLeft}
           </Hidden>
           <Hidden xsDown>
-            <TaskFilter filter={filter} handleFilterChange={changeTasksFilter} />
+            <TaskFilter/>
           </Hidden>
         </Box>
 
         <Hidden xsDown>
-          <AddTask addNewTask={addTask} />
+          <AddTask/>
           <Divider className={classes.divider}/>  
         </Hidden>
 
         <TaskList
             styleName={classes.flexContent}
-            tasks={tasksToDisplay} 
-            toogleTaskStatus={toogleTaskStatusDebounced}
-            removeTask={removeTask} />
+            tasks={tasksToDisplay} />
 
         <Box className={classes.footer}>
           {itemsLeft}
@@ -182,12 +145,9 @@ function ToDo(props) {
       </Paper>
 
       <Hidden smUp>
-        <BottomAppBar
-          filter={filter} 
-          handleFilterChange={changeTasksFilter}
+        <BottomAppBar          
           showClearButton={showClearButton}
           handelClearCompleted={clearCompleted}
-          addNewTask={addTask}
         />
       </Hidden>
     </React.Fragment>
